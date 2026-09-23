@@ -1,62 +1,84 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="id">
 
-@section('content')
-    <div class="d-flex justify-content-between mb-3">
-        <h4>Data Peminjaman</h4>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <a href="{{ route('peminjaman.create') }}" class="btn btn-primary">
-            + Catat Peminjaman
-        </a>
-    </div>
+    <title>Data Buku</title>
 
-    @if (session('gagal'))
-        <div class="alert alert-danger">
-            {{ session('gagal') }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container mt-4">
+
+        <div class="d-flex justify-content-between mb-3">
+            <h4>Daftar Buku</h4>
+
+            <a href="{{ route('buku.create') }}" class="btn btn-primary">
+                + Tambah Buku
+            </a>
         </div>
-    @endif
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Buku</th>
-                <th>Anggota</th>
-                <th>Tgl Pinjam</th>
-                <th>Tgl Kembali</th>
-                <th>Status</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
+        @if (session('sukses'))
+            <div class="alert alert-success">
+                {{ session('sukses') }}
+            </div>
+        @endif
 
-        <tbody>
-            @foreach ($peminjaman as $item)
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
-                    <td>{{ $item->buku->judul }}</td>
-                    <td>{{ $item->anggota->nama }}</td>
-                    <td>{{ $item->tanggal_pinjam }}</td>
-                    <td>{{ $item->tanggal_kembali ?? '-' }}</td>
+                    <th>Judul</th>
+                    <th>Penulis</th>
+                    <th>ISBN</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-                    <td>
-                        <span class="badge bg-{{ $item->status === 'dipinjam' ? 'warning' : 'success' }}">
-                            {{ $item->status }}
-                        </span>
-                    </td>
+            <tbody>
+                @forelse ($buku as $item)
+                    <tr>
+                        <td>{{ $item->judul }}</td>
+                        <td>{{ $item->penulis }}</td>
+                        <td>{{ $item->isbn }}</td>
+                        <td>{{ $item->stok }}</td>
 
-                    <td>
-                        @if ($item->status === 'dipinjam')
-                            <form action="{{ route('peminjaman.kembalikan', $item) }}" method="POST" class="d-inline">
+                        <td>
+                            <a href="{{ route('buku.edit', $item) }}" class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+
+                            <form action="{{ route('buku.destroy', $item) }}" method="POST" class="d-inline">
+
                                 @csrf
-                                @method('PATCH')
+                                @method('DELETE')
 
-                                <button class="btn btn-sm btn-success">
-                                    Kembalikan
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Yakin hapus buku ini?')">
+                                    Hapus
                                 </button>
                             </form>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        </td>
+                    </tr>
 
-    {{ $peminjaman->links() }}
-@endsection
+                @empty
+
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            Belum ada data buku.
+                        </td>
+                    </tr>
+
+                @endforelse
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+
+</html>
